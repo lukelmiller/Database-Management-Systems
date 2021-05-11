@@ -1,0 +1,131 @@
+SQL> Select * from cat;
+
+TABLE_NAME   TABLE_TYPE                                                         
+------------ -----------                                                        
+CUSTOMERS    TABLE                                                              
+RENTALS      TABLE                                                              
+VEHICLES     TABLE                                                              
+
+SQL> desc customers
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ C_ID                                      NOT NULL NUMBER(38)
+ NAME                                      NOT NULL CHAR(10)
+ PHONE                                              CHAR(9)
+ EMAIL                                              CHAR(15)
+
+SQL> desc rentals
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ C_ID                                      NOT NULL NUMBER(38)
+ V_ID                                      NOT NULL NUMBER(38)
+ CK_OUT_DATE                               NOT NULL DATE
+ MILES_OUT                                          NUMBER(38)
+ RET_DATE                                           DATE
+ MILES_IN                                           NUMBER(38)
+
+SQL> desc vehicles
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ID                                        NOT NULL NUMBER(38)
+ VIN                                       NOT NULL NUMBER(38)
+ LIC_NO                                    NOT NULL CHAR(10)
+ MAKE                                               CHAR(2)
+ MODEL                                              CHAR(10)
+ YEAR                                               NUMBER(38)
+ COLOR                                              CHAR(8)
+ COST                                               NUMBER(6,2)
+
+SQL>  select a.owner, a.table_name, column_name primary_key,
+  2             a.constraint_name
+  3       from   user_cons_columns a, user_constraints b
+  4       where  a.constraint_name = b.constraint_name and
+  5              constraint_type = 'P';
+
+OWNER        TABLE_NAME   PRIMARY_KEY  CONSTRAINT_NAME                          
+------------ ------------ ------------ ------------------------------           
+DBCLASS39    CUSTOMERS    C_ID         SYS_C0025585                             
+DBCLASS39    RENTALS      C_ID         SYS_C0025623                             
+DBCLASS39    RENTALS      V_ID         SYS_C0025623                             
+DBCLASS39    VEHICLES     ID           SYS_C0025581                             
+
+SQL> select a.owner, a.table_name, a.column_name foreign_key,
+  2              b.table_name Referring_table, b.column_name
+  3              Primary_key
+  4       from   user_cons_columns a, user_cons_columns b,
+  5              user_constraints c
+  6       where  a.constraint_name = c.constraint_name and
+  7              c.r_constraint_name = b.constraint_name;
+
+OWNER        TABLE_NAME   FOREIGN_KEY  REFERRING_TABLE PRIMARY_KEY              
+------------ ------------ ------------ --------------- ------------             
+DBCLASS39    RENTALS      C_ID         CUSTOMERS       C_ID                     
+DBCLASS39    RENTALS      V_ID         VEHICLES        ID                       
+
+SQL> select owner, table_name, search_condition from
+  2         user_constraints where search_condition is not null;
+
+OWNER        TABLE_NAME   SEARCH_CONDITION                                      
+------------ ------------ ---------------------------------------------         
+DBCLASS39    VEHICLES     "VIN" IS NOT NULL                                     
+DBCLASS39    VEHICLES     "LIC_NO" IS NOT NULL                                  
+DBCLASS39    VEHICLES     make in ('F','D','H','T')                             
+DBCLASS39    CUSTOMERS    "NAME" IS NOT NULL                                    
+DBCLASS39    RENTALS      "CK_OUT_DATE" IS NOT NULL                             
+DBCLASS39    VEHICLES     year<=2020 AND year>=2015                             
+
+6 rows selected.
+
+SQL> select * from customers
+  2  ;
+
+      C_ID NAME       PHONE     EMAIL                                           
+---------- ---------- --------- ---------------                                 
+       201 Luke       123456789 lukie@gmail.com                                 
+       202 Joe        123409876 joey7@gmail.com                                 
+       203 Sarah      354215653 sarhot@mail.com                                 
+       204 Jorty      432566754 jort@mail.com                                   
+       205 Thomas     432235654 tom@gmail.com                                   
+       206 Luka       432098789 Sam@gmail.com                                   
+       207 Danni      678543946 Dan@gmail.com                                   
+       208 Shant      678546836 Shan@gmail.com                                  
+       209 CP Josh    593549043 tink@gov.com                                    
+       210 Peter      343569053 Pan@gov.com                                     
+
+10 rows selected.
+
+SQL> select * from rentals;
+
+      C_ID       V_ID CK_OUT_DA  MILES_OUT RET_DATE    MILES_IN                 
+---------- ---------- --------- ---------- --------- ----------                 
+       201        111 01-FEB-19      10000 02-FEB-19      11000                 
+       201        112 03-FEB-19      19000 07-FEB-19      20000                 
+       210        112 03-DEC-19      21456 27-JAN-20      22000                 
+       204        118 29-DEC-18      21980 21-JAN-19      22000                 
+       205        116 20-MAY-19       1800 21-JUN-19       2000                 
+       209        119 22-MAY-17      18009 21-JUN-17      20001                 
+       201        120 30-OCT-17      18009 26-NOV-17      19001                 
+       203        112 28-AUG-20       1341 02-SEP-20       1400                 
+       206        111 15-AUG-15      13090 02-SEP-15      14005                 
+       207        112 05-DEC-18        970 25-DEC-18       1005                 
+
+10 rows selected.
+
+SQL> select * from vehicles;
+
+        ID        VIN LIC_NO     MA MODEL            YEAR COLOR          COST   
+---------- ---------- ---------- -- ---------- ---------- -------- ----------   
+       111        101 akf89 ast  F  Fiesta           2015 red            9800   
+       112        127 257 fast   F  mustang          2019 red            9000   
+       113       1240 me trk bg  F  F150             2019 blue           9840   
+       114       2700 me tk bgr  F  F250             2015 white           840   
+       115       4200 Beast Trk  T  Tondra           2020 gray           8840   
+       116       3000 Eco Car5   T  Preius           2020 gray           8848   
+       117       1500 Mx Voltg   D  Volt             2020 Black          4500   
+       118       1250 rago ths   D  Durango          2018 Black          7600   
+       119       1259 Ds Rang    D  Durango          2016 Black          7600   
+       120       1390 Jon Mobil  H  Accord           2017 Beige          7900   
+
+10 rows selected.
+
+SQL> spool off

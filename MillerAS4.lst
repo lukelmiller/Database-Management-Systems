@@ -1,0 +1,57 @@
+SQL> select TO_CHAR(CK_OUT_DATE, 'Month'), count(TO_CHAR(CK_OUT_DATE, 'Month')) from rentals group by TO_CHAR(ck_out_date, 'Month');
+
+TO_CHAR(CK_OUT_DATE,'MONTH')         COUNT(TO_CHAR(CK_OUT_DATE,'MONTH'))        
+------------------------------------ -----------------------------------        
+December                                                               3        
+February                                                               2        
+November                                                               1        
+May                                                                    2        
+October                                                                4        
+August                                                                 2        
+
+6 rows selected.
+
+SQL> select name from customers where name not in (select name from rentals,customers where customers.c_id = rentals.c_id and to_char(ck_out_date,'DY') != 'FRI'  group by name) and c_id in (select c_id from rentals);
+
+NAME                                                                            
+----------                                                                      
+Snape                                                                           
+Sarah                                                                           
+
+SQL> select name || '** To be contacted' from rentals, customers where customers.c_id = rentals.c_id and ck_out_date >= sysdate-11 and ck_out_date < sysdate;
+
+NAME||'**TOBECONTACTED'                                                         
+----------------------------                                                    
+Shant     ** To be contacted                                                    
+
+SQL> select lic_no,decode(make,'F ','Ford','D ','Dodge','H ','Honda','T ','Toyota'),model from vehicles, rentals where vehicles.id = rentals.v_id and to_char(ck_out_date,'MM-YYYY') = '10-2020' and to_char(ret_date,'MM-YYYY') = '11-2020';
+
+LIC_NO     DECODE MODEL                                                         
+---------- ------ ----------                                                    
+me trk bg  Ford   F150                                                          
+
+SQL> set long 355;
+SQL> select * from last_month_rentals;
+
+LIC_NO     NO_TIMES_RENTED                                                      
+---------- ----------------------------------------                             
+akf89 ast  1                                                                    
+Ds Rang    none                                                                 
+Jon Mobil  1                                                                    
+me trk bg  2                                                                    
+257 fast   none                                                                 
+rago ths   none                                                                 
+Eco Car5   none                                                                 
+
+7 rows selected.
+
+SQL> select text from user_views where view_name = 'LAST_MONTH_RENTALS';
+
+TEXT                                                                            
+--------------------------------------------------------------------------------
+select lic_no,case when sum(case when to_char(ck_out_date,'MM')='10' then 1 else
+ 0 end)= 0 then 'none' else to_char(sum(case when to_char(ck_out_date,'MM')='10'
+ then 1 else 0 end)) end from vehicles,rentals where v_id = id group by lic_no  
+                                                                                
+
+SQL> spool off;

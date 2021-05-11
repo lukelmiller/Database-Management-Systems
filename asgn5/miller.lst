@@ -1,0 +1,89 @@
+SQL> set verify off;
+SQL> set serveroutput on;
+SQL> get miller.sql;
+  1  ACCEPT cid PROMPT "Customer ID: ";
+  2  ACCEPT vid PROMPT "Vehicle ID: ";
+  3  ACCEPT milesout PROMPT "Miles Out: ";
+  4  Declare
+  5  	thisCid integer;
+  6  	thisVid integer;
+  7  	checkOutFlag integer;
+  8  	errorFlag boolean:=FALSE;
+  9  	Cursor quer is
+ 10  		select c_id from customers where c_id = &cid;
+ 11  	Cursor vQuer is
+ 12  		select id from vehicles where id = &vid;
+ 13  	Cursor ckQuer is
+ 14                  select v_id from rentals where v_id = &vid and ret_date is null; 
+ 15  Begin
+ 16  	Open quer;
+ 17  	Loop
+ 18  		Fetch quer into thisCid;
+ 19  		Exit when quer%notfound;
+ 20  	End Loop;
+ 21  	Close quer;
+ 22  	Open vQuer;
+ 23          Loop
+ 24                  Fetch vQuer into thisVid;
+ 25                  Exit when vQuer%notfound;
+ 26          End Loop;
+ 27          Close vQuer;
+ 28  	Open ckQuer;
+ 29          Loop
+ 30                  Fetch ckQuer into checkOutFlag;
+ 31                  Exit when ckQuer%notfound;
+ 32          End Loop;
+ 33          Close ckQuer;
+ 34  	IF thisCid IS NULL then
+ 35  		errorFlag:=TRUE;
+ 36  		dbms_output.put_line('Error: Customer ID not found');
+ 37  	END IF;
+ 38  	IF thisVid IS NULL then
+ 39  		errorFlag:=TRUE;
+ 40                  dbms_output.put_line('Error: Vehicle ID not found');
+ 41          END IF;
+ 42          IF checkOutFlag IS not NULL then
+ 43  		errorFlag:=TRUE;
+ 44                  dbms_output.put_line('Error: Vehicle Already Checked Out');
+ 45          END IF;
+ 46  	IF errorFlag = FALSE then
+ 47  		insert into rentals values(&cid,&vid,sysdate,&milesout,NULL,NULL);
+ 48  		dbms_output.put_line('Success: Record Added!');	
+ 49  	END IF;
+ 50* End;
+ 51  
+SQL> @miller.spl;
+SP2-0310: unable to open file "miller.spl"
+SQL> @miller.sql;
+Customer ID: 100
+Vehicle ID: 113
+Miles Out: 120
+Error: Customer ID not found                                                    
+
+PL/SQL procedure successfully completed.
+
+SQL> @miller.sql;
+Customer ID: 205
+Vehicle ID: 205
+Miles Out: 123
+Error: Vehicle ID not found                                                     
+
+PL/SQL procedure successfully completed.
+
+SQL> @miller.sql;
+Customer ID: 205
+Vehicle ID: 111
+Miles Out: 123
+Error: Vehicle Already Checked Out                                              
+
+PL/SQL procedure successfully completed.
+
+SQL> @miller.sql;
+Customer ID: 205
+Vehicle ID: 113
+Miles Out: 1200
+Success: Record Added!                                                          
+
+PL/SQL procedure successfully completed.
+
+SQL> spool off;

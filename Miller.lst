@@ -1,0 +1,64 @@
+SQL> select make, count(make), min(cost), max(cost) from vehicles group by make;
+
+MA COUNT(MAKE)  MIN(COST)  MAX(COST)                                            
+-- ----------- ---------- ----------                                            
+T            2       8840       8848                                            
+D            3       4500       7600                                            
+H            2       1200       7900                                            
+F            4        840       9840                                            
+
+SQL> select customers.name, vehicles.make, vehicles.model, rentals.ck_out_date, rentals.ret_date from customers, vehicles, rentals where customers.c_id = rentals.c_id and rentals.v_id = vehicles.id;
+
+NAME       MA MODEL      CK_OUT_DA RET_DATE                                     
+---------- -- ---------- --------- ---------                                    
+Luke       H  Accord     30-OCT-17 26-NOV-17                                    
+Luke       F  mustang    03-FEB-19 07-FEB-19                                    
+Luke       F  Fiesta     01-FEB-19 02-FEB-19                                    
+Sarah      F  mustang    28-AUG-20 02-SEP-20                                    
+Jorty      D  Durango    29-DEC-18 21-JAN-19                                    
+Thomas     T  Preius     20-MAY-19 21-JUN-19                                    
+Luka       F  Fiesta     15-AUG-15 02-SEP-15                                    
+Danni      F  Fiesta     10-OCT-20                                              
+Danni      F  mustang    05-DEC-18 25-DEC-18                                    
+CP Josh    D  Durango    22-MAY-17 21-JUN-17                                    
+Peter      F  mustang    03-DEC-19 27-JAN-20                                    
+
+NAME       MA MODEL      CK_OUT_DA RET_DATE                                     
+---------- -- ---------- --------- ---------                                    
+Snape      F  F150       10-OCT-25 10-OCT-18                                    
+
+12 rows selected.
+
+SQL> select vehicles.lic_no,vehicles.model, rentals.ck_out_date, (rentals.miles_in - rentals.miles_out) from vehicles,rentals where vehicles.id = rentals.v_id and vehicles.make = 'H 'and rentals.ret_date is not null order by rentals.ck_out_date;
+
+LIC_NO     MODEL      CK_OUT_DA (RENTALS.MILES_IN-RENTALS.MILES_OUT)            
+---------- ---------- --------- ------------------------------------            
+Jon Mobil  Accord     30-OCT-17                                  992            
+
+SQL> select lic_no,case  when count(v_id) = 0 then null else count(v_id) end as num_of_rentals from vehicles left join rentals on id=v_id group by lic_no;
+
+LIC_NO     NUM_OF_RENTALS                                                       
+---------- --------------                                                       
+akf89 ast               3                                                       
+lov lif                                                                         
+me tk bgr                                                                       
+Jon Mobil               1                                                       
+Ds Rang                 1                                                       
+Mx Voltg                                                                        
+me trk bg               1                                                       
+257 fast                4                                                       
+Beast Trk                                                                       
+rago ths                1                                                       
+Eco Car5                1                                                       
+
+11 rows selected.
+
+SQL> select customers.name from rentals, vehicles, customers where customers.c_id = rentals.c_id and rentals.v_id = vehicles.id and cost = (select max(cost) from vehicles);
+
+NAME                                                                            
+----------                                                                      
+Snape                                                                           
+
+SQL> end spool
+SP2-0042: unknown command "end spool" - rest of line ignored.
+SQL> spool off;
